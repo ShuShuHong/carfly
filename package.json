@@ -1,0 +1,11 @@
+{
+  "name": "carfly",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "特技飞天跑车 · 竖屏飙车网页游戏（纯静态，无需构建）",
+  "scripts": {
+    "test": "node tests/reference.test.mjs",
+    "serve": "node tools/serve.mjs"
+  }
+}
