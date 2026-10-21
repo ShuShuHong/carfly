@@ -23,7 +23,6 @@ import { TEXT } from './text.js';
 const $ = s => document.querySelector(s);
 const LS = { best: 'carfly_best', bestStunt: 'carfly_best_stunt', low: 'carfly_lowq', sound: 'carfly_sound' };
 const getNum = k => Number(localStorage.getItem(k) || 0);
-const loadP = p => { $('#load-fill').style.width = `${Math.round(p * 100)}%`; };
 
 // ---------------- 布局：9:16 竖屏，HUD 按 1080 宽缩放 ----------------
 const gameEl = $('#game'), hudEl = $('#hud'), canvas = $('#gl');
@@ -54,18 +53,15 @@ applyDpr();
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.15;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
-loadP(0.2);
 
 const camera = new THREE.PerspectiveCamera(CFG.cam.fov, 9 / 16, 0.1, 900);
 const world = new World(renderer);
-loadP(0.55);
 const car = buildCar();
 world.scene.add(car.root);
 const fx = new Particles(world.scene);
 const stunt = new Stunt(car, fx, world);
 const hud = new Hud(hudEl);
 const audio = new Audio();
-loadP(0.8);
 doLayout();
 addEventListener('resize', doLayout);
 addEventListener('orientationchange', () => setTimeout(doLayout, 200));
@@ -441,6 +437,12 @@ if (DEBUG_POSE) {
 // 调试/验收接口（控制台可读：帧率、仿真状态、车辆/特技/场景/相机对象）
 window.__carfly = { get sim() { return sim; }, CFG, OPEN, PAR_TIME, fps: () => fpsLog.length / fpsLog.reduce((x, y) => x + y, 0), renderer, camera, world, car, stunt, fx, audio, get state() { return state; } };
 
-loadP(1);
-setTimeout(() => { $('#loading').style.display = 'none'; }, 150);
+// Loading 收尾：进度条补满 → 淡出 → 移除（停掉文案轮播定时器）
+$('#load-fill').classList.add('done');
+setTimeout(() => {
+  const loadingEl = $('#loading');
+  loadingEl.classList.add('hide');
+  if (window.stopLoadTips) window.stopLoadTips();
+  setTimeout(() => { loadingEl.style.display = 'none'; }, 420);
+}, 200);
 requestAnimationFrame(t => { last = t; frame(t); });

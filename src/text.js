@@ -24,7 +24,7 @@ export const TEXT = {
     ['键盘', 'WASD 驾驶 · 空格喷气 · ←/→ 横滚'],
   ],
   rotate: '请竖屏游玩',
-  loading: '加载中',
+  loading: '加载中',   // loading 画面在 index.html（模块加载前就要显示，提示语见其中内联脚本）
   kmh: 'km/h',
   gas: '气量',
   full: '满',

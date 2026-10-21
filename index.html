@@ -66,7 +66,115 @@
       <div class="best" id="r-best"></div>
     </div>
   </div>
-  <div id="loading"><div class="bar"><div id="load-fill"></div></div><div id="load-text">加载中</div></div>
+  <!-- Loading：全内联 SVG + CSS 动画，零外部资源；文案轮播 15 条 × 1.5 s ≈ 22 s，覆盖慢网络等待 -->
+  <div id="loading">
+    <div id="load-scene">
+      <svg viewBox="0 0 360 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="lgBody" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#ff5a4d"/><stop offset="1" stop-color="#a81c1f"/>
+          </linearGradient>
+          <linearGradient id="lgGlass" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#5d7fa6"/><stop offset="1" stop-color="#22304a"/>
+          </linearGradient>
+        </defs>
+
+        <!-- 地面 -->
+        <path d="M0 186 H360" stroke="#1a1f2c" stroke-width="2"/>
+
+        <!-- 仓库 -->
+        <g>
+          <rect x="8" y="96" width="66" height="90" rx="3" fill="#0e1119" stroke="#272e3d" stroke-width="1.5"/>
+          <path d="M3 97 L41 67 L79 97 Z" fill="#141a26" stroke="#272e3d" stroke-width="1.5" stroke-linejoin="round"/>
+          <rect x="50" y="136" width="20" height="50" rx="2" fill="#05060a" stroke="#39415a"/>
+          <rect x="16" y="110" width="17" height="12" rx="2" fill="#16233a"/>
+          <rect x="16" y="130" width="17" height="12" rx="2" fill="#16233a"/>
+        </g>
+
+        <!-- 组装中的跑车：底盘 → 车轮 → 车身 → 尾翼 → 喷口 -->
+        <g class="part p1">
+          <rect x="206" y="160" width="120" height="10" rx="3" fill="#242b3a"/>
+        </g>
+        <g class="part p2">
+          <circle cx="230" cy="172" r="11" fill="#10131b" stroke="#3a4459" stroke-width="2"/>
+          <circle cx="230" cy="172" r="3.5" fill="#5a6580"/>
+          <circle cx="300" cy="172" r="11" fill="#10131b" stroke="#3a4459" stroke-width="2"/>
+          <circle cx="300" cy="172" r="3.5" fill="#5a6580"/>
+        </g>
+        <g class="part p3">
+          <rect x="208" y="132" width="116" height="30" rx="11" fill="url(#lgBody)"/>
+          <path d="M250 133 L248 115 L276 115 L286 133 Z" fill="url(#lgGlass)" stroke="#2b3448" stroke-width="1.5"/>
+          <rect x="208" y="143" width="7" height="5" rx="2" fill="#fff3c4"/>
+        </g>
+        <g class="part p4">
+          <rect x="306" y="116" width="24" height="4" rx="1.5" fill="#2a3244"/>
+          <rect x="310" y="120" width="3" height="12" fill="#2a3244"/>
+          <rect x="324" y="120" width="3" height="12" fill="#2a3244"/>
+        </g>
+        <g class="part p5">
+          <rect x="326" y="147" width="10" height="13" rx="2" fill="#2b3242" stroke="#47526a" stroke-width="1.2"/>
+          <ellipse class="flame" cx="337" cy="153" rx="6" ry="3" fill="#ff7a2a"/>
+        </g>
+
+        <!-- 搬运工：Claude（橙）与 DeepSeek（蓝），来回搬零件 -->
+        <g class="carrier c1">
+          <g class="bob">
+            <rect x="-11" y="-23" width="22" height="22" rx="6" fill="#141822" stroke="#d97757" stroke-width="1.4"/>
+            <g transform="translate(0,-12)">
+              <path d="M0 -6.5 V 6.5 M -5.6 -3.2 L 5.6 3.2 M -5.6 3.2 L 5.6 -3.2"
+                    stroke="#d97757" stroke-width="2.4" stroke-linecap="round"/>
+            </g>
+            <rect x="9" y="-19" width="9" height="9" rx="2" fill="#ff4a4a"/>
+          </g>
+        </g>
+        <g class="carrier c2">
+          <g class="bob">
+            <rect x="-11" y="-23" width="22" height="22" rx="6" fill="#141822" stroke="#4d6bfe" stroke-width="1.4"/>
+            <g transform="translate(0,-12)">
+              <path d="M-8 0 C-8 -3.5 -4.5 -6 0 -6 C3.5 -6 6.5 -4.2 8 -1.5 L11 -4.5 L10 0 L11 4.5 L8 1.5 C6.5 4.2 3.5 6 0 6 C-4.5 6 -8 3.5 -8 0 Z"
+                    fill="#4d6bfe"/>
+              <circle cx="-4" cy="-2" r="1" fill="#0b1020"/>
+            </g>
+            <rect x="9" y="-19" width="9" height="9" rx="2" fill="#ff4a4a"/>
+          </g>
+        </g>
+      </svg>
+    </div>
+    <div id="load-tip">正在拉取投资</div>
+    <div id="load-bar"><div id="load-fill"></div></div>
+  </div>
+  <script>
+    // 必须内联：three.js 下载完成前 ES Module 不执行，轮播要在最早时刻就跑起来
+    (function () {
+      var tips = [
+        '正在拉取投资',
+        '正在快充',
+        '正在把火箭搬来当布景',
+        '正在用打气筒给气罐打气',
+        '正在偷星舰的 RCS 喷嘴',
+        '正在向后车发送表情包',
+        '正在申请低空飞行许可',
+        '正在把限速牌改成“建议值”',
+        '正在训练自动驾驶装傻',
+        '正在给喷口做动平衡',
+        '正在请货车司机让条道',
+        '正在校准贴顶越车的勇气',
+        '正在给风洞交电费',
+        '正在把物理引擎调到不真实',
+        '正在等这盏红灯变绿（它不会）'
+      ];
+      var el = document.getElementById('load-tip'), i = 0, timer;
+      function show() {
+        el.textContent = tips[i];
+        el.classList.remove('in');
+        void el.offsetWidth;          // 强制重排，让入场动画重新播
+        el.classList.add('in');
+      }
+      show();
+      timer = setInterval(function () { i = (i + 1) % tips.length; show(); }, 1500);
+      window.stopLoadTips = function () { clearInterval(timer); };
+    })();
+  </script>
 </div>
 <div id="rotate">请竖屏游玩</div>
 <script type="module" src="src/main.js"></script>

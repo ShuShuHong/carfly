@@ -140,10 +140,41 @@ button.big:active { transform: scale(.96); }
 /* 结算面板：实底（车里已经停稳，面板上只读成绩；任何透出都会干扰数字） */
 #result { background: #0a0c12; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
 
-#loading { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; background: #05060a; z-index: 5; }
-#loading .bar { width: 60%; height: 8px; border-radius: 4px; background: #222; overflow: hidden; }
-#load-fill { height: 100%; width: 0; background: #ff3a3a; transition: width .2s; }
-#load-text { font-size: 15px; opacity: .7; }
+/* Loading：纯内联 SVG + CSS 动画，不加载任何外部资源；整轮循环无时长上限，覆盖慢网络等待 */
+#loading { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px;
+  background: radial-gradient(ellipse at 50% 64%, #0d1220 0, #05060a 64%); z-index: 5; transition: opacity .4s ease; }
+#loading.hide { opacity: 0; pointer-events: none; }
+#load-scene { width: 78%; max-width: 460px; aspect-ratio: 360 / 200; }
+#load-scene svg { display: block; width: 100%; height: 100%; }
+
+/* 零件落位：6 s 一轮，底盘/车轮/车身/尾翼/喷口依次出现，92% 后一起熄灭重来 */
+.part { transform-box: fill-box; transform-origin: center; opacity: 0;
+  animation-duration: 6s; animation-timing-function: ease-out; animation-iteration-count: infinite; }
+.p1 { animation-name: p1 } .p2 { animation-name: p2 } .p3 { animation-name: p3 } .p4 { animation-name: p4 } .p5 { animation-name: p5 }
+@keyframes p1 { 0%, 6% { opacity: 0; transform: scale(.9) } 12%, 92% { opacity: 1; transform: scale(1) } 100% { opacity: 0; transform: scale(.94) } }
+@keyframes p2 { 0%, 22% { opacity: 0; transform: scale(.9) } 28%, 92% { opacity: 1; transform: scale(1) } 100% { opacity: 0; transform: scale(.94) } }
+@keyframes p3 { 0%, 38% { opacity: 0; transform: scale(.94) } 44%, 92% { opacity: 1; transform: scale(1) } 100% { opacity: 0; transform: scale(.94) } }
+@keyframes p4 { 0%, 54% { opacity: 0; transform: scale(.9) } 60%, 92% { opacity: 1; transform: scale(1) } 100% { opacity: 0; transform: scale(.94) } }
+@keyframes p5 { 0%, 70% { opacity: 0; transform: scale(.9) } 76%, 92% { opacity: 1; transform: scale(1) } 100% { opacity: 0; transform: scale(.94) } }
+
+/* 两个搬运工：仓库门(72) → 车头(190) 往返，1.2 s 一趟，Claude 先走半步 */
+.carrier { animation-duration: 1.2s; animation-timing-function: ease-in-out; animation-iteration-count: infinite; }
+.c1 { animation-name: haul1 } .c2 { animation-name: haul2; animation-delay: .6s }
+@keyframes haul1 { 0% { transform: translate(72px, 186px) } 55%, 66% { transform: translate(190px, 186px) } 100% { transform: translate(72px, 186px) } }
+@keyframes haul2 { 0% { transform: translate(72px, 183px) scale(.86) } 55%, 66% { transform: translate(176px, 183px) scale(.86) } 100% { transform: translate(72px, 183px) scale(.86) } }
+.bob { animation: bob .3s ease-in-out infinite alternate; }
+@keyframes bob { to { transform: translateY(-1.5px) } }
+.flame { transform-box: fill-box; transform-origin: left center; animation: flame .38s ease-in-out infinite alternate; }
+@keyframes flame { from { opacity: .2; transform: scaleX(.6) } to { opacity: .75; transform: scaleX(1.2) } }
+
+#load-tip { height: 1.5em; font-size: clamp(13px, 3.4vmin, 17px); color: #cfd6e4; letter-spacing: .06em; }
+#load-tip.in { animation: tipIn .45s ease both; }
+@keyframes tipIn { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: none } }
+#load-bar { width: 62%; max-width: 420px; height: 6px; border-radius: 3px; background: #171b26; overflow: hidden; }
+#load-fill { width: 0; height: 100%; border-radius: 3px; background: linear-gradient(90deg, #ff3a3a, #ff8a2a);
+  box-shadow: 0 0 12px rgba(255, 90, 50, .5); animation: loadCrawl 15s cubic-bezier(.25, .6, .35, 1) forwards; }
+#load-fill.done { animation: none; width: 100%; }
+@keyframes loadCrawl { from { width: 0 } to { width: 92% } }
 
 #rotate { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: #05060a; font-size: 22px; z-index: 10; }
 @media (orientation: landscape) and (max-height: 600px) { #rotate { display: flex; } }
