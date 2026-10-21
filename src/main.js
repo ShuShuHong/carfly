@@ -74,10 +74,50 @@ const input = new Input(gameEl, (cx, cy) => {
   R: { ring: $('#stick-R .ring'), knob: $('#stick-R .knob') },
 });
 
+// 引导卡插图：内联 SVG，零外部资源（比 GIF 更小，任意分辨率不糊）
+const stickIcon = side => `
+  <svg class="g-stick" viewBox="0 0 120 120" aria-hidden="true">
+    <circle class="g-ring" cx="60" cy="60" r="50"/>
+    <path class="g-arrow" d="M60 10 55 21h10zM60 110 55 99h10zM10 60 21 55v10zM110 60 99 55v10z"/>
+    <g class="g-knob ${side === 'L' ? 'kL' : 'kR'}"><circle cx="60" cy="60" r="21"/></g>
+  </svg>`;
+const shaveIcon = `
+  <svg class="g-shot" viewBox="0 0 200 84" aria-hidden="true">
+    <path class="g-road" d="M0 76H200"/>
+    <g class="g-truck">
+      <rect x="54" y="40" width="78" height="34" rx="4"/>
+      <rect x="132" y="48" width="26" height="26" rx="4"/>
+      <circle cx="70" cy="76" r="7"/><circle cx="112" cy="76" r="7"/><circle cx="146" cy="76" r="7"/>
+    </g>
+    <g class="g-fly"><rect x="20" y="16" width="44" height="13" rx="5"/></g>
+    <path class="g-spark" d="M56 37H146"/>
+  </svg>`;
+const rollIcon = `
+  <svg class="g-shot" viewBox="0 0 140 84" aria-hidden="true">
+    <path class="g-loop" d="M112 18a30 30 0 1 1-12 41"/>
+    <g class="g-spin">
+      <rect x="44" y="30" width="52" height="16" rx="6"/>
+      <circle cx="57" cy="48" r="7"/><circle cx="83" cy="48" r="7"/>
+    </g>
+    <path class="g-road" d="M10 78H130"/>
+  </svg>`;
+
 // ---------------- 文案 ----------------
+const G = TEXT.guide;
+const stickCard = ([name, items], side) => `<div class="g-card g-stickcard">${stickIcon(side)}<div class="g-body"><div class="g-name">${name}</div><div class="g-list">${items.map(t => `<span>${t}</span>`).join('')}</div></div></div>`;
 $('#t-title').textContent = TEXT.title;
 $('#t-sub').textContent = TEXT.subtitle;
-$('#howto').innerHTML = TEXT.howto.map(([a, b]) => `<div><b>${a}</b>${b}</div>`).join('');
+$('#howto').innerHTML = `
+  ${stickCard(G.left, 'L')}
+  ${stickCard(G.right, 'R')}
+  <div class="g-card g-gascard">
+    <div class="g-name">${G.gas.name}</div>
+    <div class="g-gauge"><i class="g-base"></i><i class="g-earn"></i><i class="g-mark"></i></div>
+    <div class="g-gastext"><b>${G.gas.main}</b> · ${G.gas.earn}</div>
+    <div class="g-chips">${G.gas.chips.map(t => `<span>${t}</span>`).join('')}</div>
+  </div>
+  <div class="g-stunts">${G.stunt.cards.map(([t, d], i) => `<div class="g-card g-stuntcard">${i ? rollIcon : shaveIcon}<div class="g-body"><div class="g-name">${t}</div><div class="g-desc">${d}</div></div></div>`).join('')}</div>
+  <div class="g-keys">${G.keys}</div>`;
 $('#btn-start').textContent = TEXT.start;
 $('#btn-again').textContent = TEXT.again;
 $('#t-low').textContent = TEXT.lowQ;

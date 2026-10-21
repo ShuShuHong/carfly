@@ -103,8 +103,76 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Helvetica 
 .panel.show { display: block; }
 .panel .title { font-size: 96px; font-weight: 900; font-style: italic; letter-spacing: 4px; color: #fff; text-shadow: 0 0 30px rgba(255,40,40,.8); }
 .panel .sub { font-size: 38px; opacity: .75; margin: 18px 0 40px; }
-#howto { text-align: left; font-size: 34px; line-height: 1.45; margin-bottom: 46px; }
-#howto div { margin: 14px 0; } #howto b { color: #ff6b6b; display: inline-block; min-width: 150px; }
+/* 引导卡：内联 SVG + CSS 动画，零外部图片 */
+#howto { text-align: left; margin-bottom: 34px; display: flex; flex-direction: column; gap: 14px; }
+.g-card { display: flex; align-items: center; gap: 22px; padding: 16px 24px; border-radius: 22px;
+  background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.12); }
+.g-body { flex: 1; min-width: 0; }
+.g-name { font-size: 27px; font-weight: 800; color: #ff8a7a; letter-spacing: .04em; margin-bottom: 6px; }
+.g-stickcard:nth-child(2) .g-name { color: #8fd7ff; }
+.g-list { display: flex; flex-wrap: wrap; gap: 8px 28px; font-size: 23px; color: #cfd6e4; }
+.g-desc { font-size: 22px; color: #b9c2d4; }
+
+/* 摇杆示意：左杆依次点向上/下/左/右；右杆常按（缩小+高亮）后左/右推 */
+.g-stick { width: 116px; height: 116px; flex: none; }
+.g-ring { fill: rgba(255,255,255,.06); stroke: rgba(255,255,255,.32); stroke-width: 4; }
+.g-arrow { fill: rgba(255,255,255,.38); }
+.g-knob { transform-box: fill-box; transform-origin: center; }
+.g-knob circle { fill: rgba(255,255,255,.88); }
+.g-knob.kL { animation: gL 4.8s ease-in-out infinite; }
+@keyframes gL {
+  0%, 6%   { transform: translate(0, 0) }
+  14%, 22% { transform: translate(0, -30px) }
+  30%, 36% { transform: translate(0, 0) }
+  44%, 52% { transform: translate(0, 30px) }
+  60%, 62% { transform: translate(0, 0) }
+  68%, 76% { transform: translate(-30px, 0) }
+  82%, 84% { transform: translate(0, 0) }
+  88%, 94% { transform: translate(30px, 0) }
+  100%     { transform: translate(0, 0) }
+}
+.g-stickcard:nth-child(2) .g-ring { stroke: rgba(140,200,255,.5); fill: rgba(90,150,255,.08); }
+.g-knob.kR { animation: gR 4.8s ease-in-out infinite; }
+.g-knob.kR circle { fill: rgba(160,215,255,.92); }
+@keyframes gR {
+  0%, 10%  { transform: translate(0, 0) scale(.84) }
+  40%      { transform: translate(0, 0) scale(.84) }
+  52%, 64% { transform: translate(-30px, 0) scale(.84) }
+  78%, 88% { transform: translate(30px, 0) scale(.84) }
+  100%     { transform: translate(0, 0) scale(.84) }
+}
+
+/* 气量：左半 100 底色，右半可赚 100（斜纹闪烁），中线为上限 */
+.g-gascard { flex-wrap: wrap; gap: 18px 22px; }
+.g-gauge { position: relative; width: 300px; height: 24px; flex: none; border-radius: 12px; overflow: hidden;
+  background: #121722; box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
+.g-base { position: absolute; inset: 0 50% 0 0; background: linear-gradient(90deg, #2f8fe0, #7fd0ff); }
+.g-earn { position: absolute; inset: 0 0 0 50%;
+  background: repeating-linear-gradient(45deg, rgba(255,122,42,.85) 0 7px, rgba(170,50,20,.85) 7px 14px); animation: gEarn 2.2s ease-in-out infinite; }
+@keyframes gEarn { 0%, 100% { opacity: .32 } 50% { opacity: 1 } }
+.g-mark { position: absolute; left: 50%; top: 0; bottom: 0; width: 3px; margin-left: -1.5px; background: rgba(255,255,255,.85); }
+.g-gastext { font-size: 23px; color: #cfd6e4; } .g-gastext b { color: #7fd0ff; }
+.g-chips { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 10px; }
+.g-chips span { font-size: 21px; padding: 5px 15px; border-radius: 999px; color: #ffb3a0;
+  background: rgba(255,90,60,.16); border: 1px solid rgba(255,90,60,.42); }
+
+/* 高难动作示意：贴顶飞跃（车从货车顶掠过）+ 多圈翻滚（720° 旋转） */
+.g-stunts { display: flex; gap: 14px; }
+.g-stuntcard { flex: 1; flex-direction: column; align-items: stretch; gap: 10px; padding: 14px 20px; }
+.g-shot { width: 100%; height: 92px; }
+.g-road { fill: none; stroke: #2b3345; stroke-width: 2; }
+.g-truck rect { fill: #414b60; }
+.g-truck circle { fill: #1b2029; stroke: #4c566b; stroke-width: 2; }
+.g-fly rect { fill: #ff5a4d; }
+.g-fly { animation: gShave 3.6s ease-in-out infinite; }
+@keyframes gShave { 0% { transform: translate(-30px, 0) } 55%, 70% { transform: translate(120px, -4px) } 100% { transform: translate(-30px, 0) } }
+.g-spark { stroke: rgba(159,224,255,.65); stroke-width: 2; stroke-dasharray: 6 5; animation: gLoop 2.4s linear infinite; }
+.g-spin { transform-box: fill-box; transform-origin: center; animation: gSpin 2.6s linear infinite; }
+@keyframes gSpin { to { transform: rotate(720deg) } }
+.g-spin rect { fill: #ff5a4d; } .g-spin circle { fill: #10131b; stroke: #47526a; stroke-width: 2; }
+.g-loop { fill: none; stroke: rgba(159,224,255,.55); stroke-width: 3; stroke-dasharray: 8 7; animation: gLoop 2.4s linear infinite; }
+@keyframes gLoop { to { stroke-dashoffset: -30 } }
+.g-keys { font-size: 20px; color: #8b95a8; text-align: center; }
 button.big { pointer-events: auto; font: inherit; font-size: 60px; font-weight: 900; color: #fff; border: 0; border-radius: 80px; padding: 30px 110px;
   background: linear-gradient(180deg, #ff4a4a, #c4141c); box-shadow: 0 10px 40px rgba(255,40,40,.5); cursor: pointer; touch-action: manipulation; }
 button.big:active { transform: scale(.96); }
